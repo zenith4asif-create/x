@@ -1,0 +1,160 @@
+{
+  "rules": {
+    "users": {
+      ".read": true,
+      "$uid": {
+        ".write": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('role').val() === 'admin')",
+        ".indexOn": ["normalizedUsername", "createdAt", "followersCount"]
+      }
+    },
+    "usernames": {
+      ".read": true,
+      "$normalized": {
+        ".write": "auth != null"
+      }
+    },
+    "posts": {
+      ".read": true,
+      ".indexOn": ["authorId", "createdAt", "replyTo", "communityId", "status", "viewCount"],
+      "$postId": {
+        ".write": "auth != null && (!data.exists() || data.child('authorId').val() === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin' || newData.child('likeCount').exists() || newData.child('replyCount').exists() || newData.child('repostCount').exists() || newData.child('viewCount').exists() || newData.child('poll').exists())"
+      }
+    },
+    "postMedia": {
+      ".read": true,
+      "$postId": {
+        ".write": "auth != null"
+      }
+    },
+    "likes": {
+      ".read": true,
+      "$postId": {
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    "reposts": {
+      ".read": true,
+      "$postId": {
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    "bookmarks": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "following": {
+      ".read": true,
+      "$uid": {
+        "$targetUid": {
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    "followers": {
+      ".read": true,
+      "$uid": {
+        "$followerUid": {
+          ".write": "auth != null && auth.uid === $followerUid"
+        }
+      }
+    },
+    "replies": {
+      ".read": true,
+      "$postId": {
+        ".write": "auth != null"
+      }
+    },
+    "hashtags": {
+      ".read": true,
+      "$tag": {
+        ".indexOn": ["createdAt"],
+        ".write": "auth != null"
+      }
+    },
+    "notifications": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null",
+        ".indexOn": ["createdAt", "read"]
+      }
+    },
+    "conversations": {
+      ".read": "auth != null",
+      "$conversationId": {
+        ".write": "auth != null",
+        ".indexOn": ["updatedAt"]
+      }
+    },
+    "messages": {
+      "$conversationId": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        ".indexOn": ["createdAt"]
+      }
+    },
+    "communities": {
+      ".read": true,
+      ".indexOn": ["createdAt", "memberCount"],
+      "$communityId": {
+        ".write": "auth != null"
+      }
+    },
+    "communityMembers": {
+      ".read": true,
+      "$communityId": {
+        "$uid": {
+          ".write": "auth != null && (auth.uid === $uid || root.child('communities').child($communityId).child('ownerId').val() === auth.uid)"
+        }
+      }
+    },
+    "reports": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'admin' || root.child('users').child(auth.uid).child('role').val() === 'moderator')",
+      ".write": "auth != null",
+      ".indexOn": ["status", "createdAt"]
+    },
+    "blocks": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "mutes": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "presence": {
+      ".read": true,
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "typing": {
+      ".read": "auth != null",
+      "$conversationId": {
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    "drafts": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$draftId": {
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    "platformSettings": {
+      ".read": true,
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'"
+    }
+  }
+}

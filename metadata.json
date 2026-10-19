@@ -1,0 +1,6 @@
+{
+  "name": "ZOR - Modern Social Media Platform",
+  "description": "ZOR is a next-generation real-time social network featuring lightning-fast microblogging, multimedia sharing, algorithmic discovery, threaded discussions, and direct messaging.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
