@@ -108,19 +108,19 @@ export const CommunitiesPage: React.FC<CommunitiesPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-black text-[#e7e9ea] pb-16">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-slate-950/85 backdrop-blur-md border-b border-slate-800/80 px-4 py-3 flex items-center justify-between">
+      <div className="sticky top-0 z-20 bg-black/85 backdrop-blur-md border-b border-[#2f3336] px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           {activeCommunity && (
             <button
               onClick={() => setActiveCommunity(null)}
-              className="p-1.5 -ml-1.5 rounded-full text-slate-400 hover:text-white"
+              className="p-1.5 -ml-1.5 rounded-full text-[#71767b] hover:text-[#e7e9ea] hover:bg-white/10"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
           )}
-          <h2 className="text-sm font-bold text-slate-100">
+          <h2 className="text-base font-black text-[#e7e9ea]">
             {activeCommunity ? activeCommunity.name : 'Communities'}
           </h2>
         </div>
@@ -128,9 +128,9 @@ export const CommunitiesPage: React.FC<CommunitiesPageProps> = ({
         {!activeCommunity && currentUser && (
           <button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md transition-all"
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white hover:bg-neutral-200 text-black text-xs font-extrabold shadow-md transition-all"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-3.5 h-3.5 text-black" />
             <span>Create Community</span>
           </button>
         )}
@@ -139,18 +139,18 @@ export const CommunitiesPage: React.FC<CommunitiesPageProps> = ({
       {activeCommunity ? (
         <div>
           {/* Community Hero banner */}
-          <div className="p-5 border-b border-slate-800/80 bg-gradient-to-r from-indigo-950/30 to-slate-900/50">
+          <div className="p-5 border-b border-[#2f3336] bg-[#16181c]">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-center gap-3.5">
                 <img
                   src={activeCommunity.avatarUrl}
                   alt=""
-                  className="w-14 h-14 rounded-2xl object-cover ring-2 ring-indigo-500/30"
+                  className="w-14 h-14 rounded-2xl object-cover ring-1 ring-white/10 bg-neutral-900"
                 />
                 <div>
-                  <h1 className="text-lg font-extrabold text-white">{activeCommunity.name}</h1>
-                  <p className="text-xs text-slate-400 mt-0.5 max-w-md">{activeCommunity.description}</p>
-                  <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
+                  <h1 className="text-lg font-black text-[#e7e9ea]">{activeCommunity.name}</h1>
+                  <p className="text-xs text-[#71767b] mt-0.5 max-w-md">{activeCommunity.description}</p>
+                  <div className="flex items-center gap-3 mt-2 text-xs text-[#71767b]">
                     <span className="font-mono tabular-nums">{activeCommunity.memberCount || 1} members</span>
                     <span aria-hidden="true">·</span>
                     <span className="capitalize flex items-center gap-1">
@@ -163,10 +163,10 @@ export const CommunitiesPage: React.FC<CommunitiesPageProps> = ({
 
               <button
                 onClick={() => handleJoinToggle(activeCommunity)}
-                className={`px-4 py-2 rounded-full text-xs font-bold transition-all shadow-md ${
+                className={`px-4 py-1.5 rounded-full text-xs font-extrabold transition-all shadow-md ${
                   activeCommunity.isMember
-                    ? 'bg-slate-900 border border-slate-700 text-slate-200 hover:text-rose-400'
-                    : 'bg-white text-slate-950 hover:bg-slate-200'
+                    ? 'bg-black border border-[#536471] text-[#e7e9ea] hover:text-rose-400 hover:border-rose-500/50 hover:bg-rose-500/10'
+                    : 'bg-white text-black hover:bg-neutral-200'
                 }`}
               >
                 {activeCommunity.isMember ? 'Joined' : 'Join'}
@@ -184,9 +184,9 @@ export const CommunitiesPage: React.FC<CommunitiesPageProps> = ({
           )}
 
           {/* Community posts */}
-          <div className="divide-y divide-slate-800/80">
+          <div className="divide-y divide-[#2f3336]">
             {communityPosts.length === 0 ? (
-              <div className="py-20 text-center text-xs text-slate-500">
+              <div className="py-20 text-center text-xs text-[#71767b]">
                 No posts in this community yet. Be the first to share!
               </div>
             ) : (
@@ -206,20 +206,20 @@ export const CommunitiesPage: React.FC<CommunitiesPageProps> = ({
       ) : (
         <div className="p-4 space-y-3">
           {loading ? (
-            <div className="py-24 flex justify-center items-center text-slate-500">
-              <Loader2 className="w-7 h-7 animate-spin text-indigo-500" />
+            <div className="py-24 flex justify-center items-center text-[#71767b]">
+              <Loader2 className="w-7 h-7 animate-spin text-[#1d9bf0]" />
             </div>
           ) : communities.length === 0 ? (
             <div className="py-20 text-center px-4">
-              <Users className="w-8 h-8 text-indigo-400 mx-auto mb-3" />
-              <h3 className="text-sm font-bold text-slate-100">Discover Groups on ZOR</h3>
-              <p className="text-xs text-slate-400 max-w-sm mx-auto mt-1 mb-4">
+              <Users className="w-10 h-10 text-[#71767b] mx-auto mb-3" />
+              <h3 className="text-base font-bold text-[#e7e9ea]">Discover Communities on ZOR</h3>
+              <p className="text-xs text-[#71767b] max-w-sm mx-auto mt-1 mb-4">
                 Communities bring together people interested in specific topics, hobbies, and ideas.
               </p>
               {currentUser && (
                 <button
                   onClick={() => setShowCreateModal(true)}
-                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold"
+                  className="px-5 py-2.5 rounded-full bg-white hover:bg-neutral-200 text-black text-xs font-extrabold"
                 >
                   Create First Community
                 </button>
@@ -230,18 +230,18 @@ export const CommunitiesPage: React.FC<CommunitiesPageProps> = ({
               <div
                 key={c.id}
                 onClick={() => openCommunityDetail(c)}
-                className="p-4 rounded-2xl border border-slate-800 bg-slate-900/40 hover:bg-slate-900/80 transition-colors flex items-center justify-between gap-4 cursor-pointer"
+                className="p-4 rounded-3xl border border-[#2f3336] bg-[#16181c]/60 hover:bg-[#16181c] transition-colors flex items-center justify-between gap-4 cursor-pointer"
               >
                 <div className="flex items-center gap-3.5 min-w-0">
                   <img
                     src={c.avatarUrl}
                     alt=""
-                    className="w-12 h-12 rounded-2xl object-cover shrink-0 ring-1 ring-slate-800 bg-slate-800"
+                    className="w-12 h-12 rounded-2xl object-cover shrink-0 ring-1 ring-white/10 bg-neutral-900"
                   />
                   <div className="min-w-0">
-                    <h3 className="text-sm font-bold text-slate-100 truncate">{c.name}</h3>
-                    <p className="text-xs text-slate-400 line-clamp-1 mt-0.5">{c.description}</p>
-                    <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-500">
+                    <h3 className="text-sm font-bold text-[#e7e9ea] truncate">{c.name}</h3>
+                    <p className="text-xs text-[#71767b] line-clamp-1 mt-0.5">{c.description}</p>
+                    <div className="flex items-center gap-2 mt-1 text-[11px] text-[#71767b]">
                       <span className="font-mono tabular-nums">{c.memberCount || 1} members</span>
                       <span aria-hidden="true">·</span>
                       <span className="capitalize">{c.privacy}</span>
@@ -254,10 +254,10 @@ export const CommunitiesPage: React.FC<CommunitiesPageProps> = ({
                     e.stopPropagation();
                     handleJoinToggle(c);
                   }}
-                  className={`px-4 py-1.5 rounded-full text-xs font-semibold shrink-0 transition-all ${
+                  className={`px-4 py-1.5 rounded-full text-xs font-extrabold shrink-0 transition-all ${
                     c.isMember
-                      ? 'bg-slate-800 text-slate-300 hover:text-rose-400'
-                      : 'bg-white text-slate-950 hover:bg-slate-200'
+                      ? 'bg-black border border-[#536471] text-[#e7e9ea] hover:text-rose-400'
+                      : 'bg-white text-black hover:bg-neutral-200'
                   }`}
                 >
                   {c.isMember ? 'Joined' : 'Join'}
@@ -270,18 +270,18 @@ export const CommunitiesPage: React.FC<CommunitiesPageProps> = ({
 
       {/* Create Community Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-in fade-in select-none">
-          <div className="relative w-full max-w-md rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in select-none">
+          <div className="relative w-full max-w-md rounded-3xl bg-black border border-[#2f3336] shadow-2xl p-6 animate-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-100">Create a New Community</h3>
-              <button onClick={() => setShowCreateModal(false)} className="text-slate-400 hover:text-white">
+              <h3 className="text-sm font-bold text-[#e7e9ea]">Create a New Community</h3>
+              <button onClick={() => setShowCreateModal(false)} className="text-[#71767b] hover:text-[#e7e9ea] p-1 rounded-full hover:bg-white/10">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleCreate} className="space-y-4 text-xs">
               <div>
-                <label className="block text-slate-300 font-semibold mb-1">Community Name</label>
+                <label className="block text-[#e7e9ea] font-bold mb-1.5">Community Name</label>
                 <input
                   type="text"
                   required
@@ -289,12 +289,12 @@ export const CommunitiesPage: React.FC<CommunitiesPageProps> = ({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. AI Researchers & Engineers"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 placeholder-slate-500 focus:border-indigo-500 focus:outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#2f3336] bg-[#16181c] text-[#e7e9ea] placeholder-[#71767b] focus:border-[#1d9bf0] focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-300 font-semibold mb-1">Description</label>
+                <label className="block text-[#e7e9ea] font-bold mb-1.5">Description</label>
                 <textarea
                   required
                   maxLength={200}
@@ -302,16 +302,16 @@ export const CommunitiesPage: React.FC<CommunitiesPageProps> = ({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="What is this community about? Share guidelines and topics..."
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 placeholder-slate-500 focus:border-indigo-500 focus:outline-none resize-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#2f3336] bg-[#16181c] text-[#e7e9ea] placeholder-[#71767b] focus:border-[#1d9bf0] focus:outline-none resize-none"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-300 font-semibold mb-1">Privacy Level</label>
+                <label className="block text-[#e7e9ea] font-bold mb-1.5">Privacy Level</label>
                 <select
                   value={privacy}
                   onChange={(e) => setPrivacy(e.target.value as any)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 focus:border-indigo-500 focus:outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#2f3336] bg-[#16181c] text-[#e7e9ea] focus:border-[#1d9bf0] focus:outline-none"
                 >
                   <option value="public">Public (Anyone can view and join)</option>
                   <option value="restricted">Restricted (Anyone can view, members must request)</option>
@@ -322,9 +322,9 @@ export const CommunitiesPage: React.FC<CommunitiesPageProps> = ({
               <button
                 type="submit"
                 disabled={creating}
-                className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-all shadow-md flex items-center justify-center gap-2"
+                className="w-full py-2.5 rounded-full bg-white hover:bg-neutral-200 text-black font-extrabold transition-all shadow-md flex items-center justify-center gap-2"
               >
-                {creating && <Loader2 className="w-4 h-4 animate-spin" />}
+                {creating && <Loader2 className="w-4 h-4 animate-spin text-black" />}
                 <span>Create Community</span>
               </button>
             </form>

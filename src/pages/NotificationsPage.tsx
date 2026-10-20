@@ -72,32 +72,32 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
   const getIconForType = (type: NotificationItem['type']) => {
     switch (type) {
       case 'like':
-        return <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />;
+        return <Heart className="w-4 h-4 text-[#f91880] fill-[#f91880]" />;
       case 'repost':
-        return <Repeat2 className="w-4 h-4 text-emerald-400" />;
+        return <Repeat2 className="w-4 h-4 text-[#00ba7c]" />;
       case 'reply':
-        return <MessageCircle className="w-4 h-4 text-sky-400" />;
+        return <MessageCircle className="w-4 h-4 text-[#1d9bf0]" />;
       case 'quote':
-        return <Repeat2 className="w-4 h-4 text-indigo-400" />;
+        return <Repeat2 className="w-4 h-4 text-[#1d9bf0]" />;
       case 'follow':
-        return <UserPlus className="w-4 h-4 text-indigo-400" />;
+        return <UserPlus className="w-4 h-4 text-[#1d9bf0]" />;
       case 'mention':
         return <AtSign className="w-4 h-4 text-amber-400" />;
       default:
-        return <Bell className="w-4 h-4 text-indigo-400" />;
+        return <Bell className="w-4 h-4 text-[#1d9bf0]" />;
     }
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-black text-[#e7e9ea] pb-16">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-slate-950/85 backdrop-blur-md border-b border-slate-800/80">
+      <div className="sticky top-0 z-20 bg-black/85 backdrop-blur-md border-b border-[#2f3336]">
         <div className="flex items-center justify-between px-4 py-3">
-          <h2 className="text-sm font-bold text-slate-100">Notifications</h2>
+          <h2 className="text-base font-black text-[#e7e9ea]">Notifications</h2>
           {notifications.some((n) => !n.read) && (
             <button
               onClick={handleMarkAllRead}
-              className="flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300 font-semibold"
+              className="flex items-center gap-1.5 text-xs text-[#1d9bf0] hover:underline font-bold"
             >
               <CheckCheck className="w-3.5 h-3.5" />
               <span>Mark all read</span>
@@ -106,7 +106,7 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center border-t border-slate-800/60 text-xs">
+        <div className="flex items-center border-t border-[#2f3336] text-xs font-bold">
           {[
             { id: 'all', label: 'All' },
             { id: 'mentions', label: 'Mentions & Replies' },
@@ -115,80 +115,81 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex-1 py-3 text-center font-semibold relative transition-colors ${
-                activeTab === tab.id ? 'text-indigo-400' : 'text-slate-400 hover:text-slate-200'
+              className={`flex-1 py-3.5 text-center relative transition-colors hover:bg-white/[0.03] ${
+                activeTab === tab.id ? 'text-[#e7e9ea]' : 'text-[#71767b] hover:text-[#e7e9ea]'
               }`}
             >
-              {tab.label}
-              {activeTab === tab.id && (
-                <div className="absolute bottom-0 left-4 right-4 h-0.5 bg-indigo-500 rounded-full" />
-              )}
+              <span className="relative">
+                {tab.label}
+                {activeTab === tab.id && (
+                  <div className="absolute -bottom-3.5 inset-x-0 h-1 bg-[#1d9bf0] rounded-full" />
+                )}
+              </span>
             </button>
           ))}
         </div>
       </div>
 
       {/* Notifications List */}
-      <div className="divide-y divide-slate-800/80">
+      <div className="divide-y divide-[#2f3336]">
         {loading ? (
-          <div className="py-20 flex justify-center items-center text-slate-500">
-            <Loader2 className="w-7 h-7 animate-spin text-indigo-500" />
+          <div className="py-20 flex justify-center items-center text-[#71767b]">
+            <Loader2 className="w-7 h-7 animate-spin text-[#1d9bf0]" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="py-20 text-center text-xs text-slate-500">
-            No notifications yet in this category.
+          <div className="py-24 text-center px-4">
+            <h3 className="text-base font-bold text-[#e7e9ea]">Nothing to see here — yet</h3>
+            <p className="text-xs text-[#71767b] mt-1">From likes to reposts and a whole lot more, this is where all the action happens.</p>
           </div>
         ) : (
           filtered.map((item) => (
             <div
               key={item.id}
               onClick={() => handleItemClick(item)}
-              className={`p-4 flex items-start gap-3.5 hover:bg-slate-900/40 cursor-pointer transition-colors ${
-                !item.read ? 'bg-indigo-950/15' : ''
+              className={`p-4 flex items-start gap-3.5 hover:bg-white/[0.03] cursor-pointer transition-colors ${
+                !item.read ? 'bg-[#1d9bf0]/[0.06]' : ''
               }`}
             >
               <div className="shrink-0 mt-0.5">{getIconForType(item.type)}</div>
 
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <img
-                    src={item.actor?.avatarUrl || `https://api.dicebear.com/7.x/shapes/svg?seed=${item.actorId}`}
-                    alt=""
-                    referrerPolicy="no-referrer"
-                    className="w-7 h-7 rounded-full object-cover bg-slate-800"
-                  />
-                  <div className="flex items-center gap-1 min-w-0">
-                    <span className="text-xs font-bold text-slate-100 truncate">
-                      {item.actor?.displayName || 'Someone'}
-                    </span>
-                    {item.actor?.verified && (
-                      <VerifiedBadge size={14} />
-                    )}
+              <div className="min-w-0 flex-1">
+                {item.actor && (
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <img
+                      src={item.actor.avatarUrl || `https://api.dicebear.com/7.x/shapes/svg?seed=${item.actor.username}`}
+                      alt=""
+                      referrerPolicy="no-referrer"
+                      className="w-8 h-8 rounded-full object-cover ring-1 ring-white/10 bg-neutral-900"
+                    />
+                    <div className="flex items-center gap-1 min-w-0">
+                      <span className="text-xs font-bold text-[#e7e9ea] truncate">
+                        {item.actor.displayName}
+                      </span>
+                      {item.actor.verified && <VerifiedBadge size={13} />}
+                      <span className="text-xs text-[#71767b] font-mono">@{item.actor.username}</span>
+                    </div>
                   </div>
-                  <span className="text-xs text-slate-500 font-mono ml-auto shrink-0">
-                    {formatRelativeTime(item.createdAt)}
-                  </span>
-                </div>
+                )}
 
-                <p className="text-xs text-slate-300">
+                <p className="text-xs text-[#71767b]">
                   {item.type === 'like' && 'liked your post'}
                   {item.type === 'repost' && 'reposted your post'}
-                  {item.type === 'reply' && 'replied to your thread'}
+                  {item.type === 'reply' && 'replied to your post'}
                   {item.type === 'quote' && 'quoted your post'}
                   {item.type === 'follow' && 'followed you'}
                   {item.type === 'mention' && 'mentioned you in a post'}
                 </p>
 
                 {item.postText && (
-                  <p className="text-xs text-slate-400 mt-1 line-clamp-2 bg-slate-950/40 p-2 rounded-lg border border-slate-800/60">
+                  <p className="mt-1 text-xs text-[#e7e9ea] line-clamp-2 bg-[#16181c] p-2.5 rounded-xl border border-[#2f3336]">
                     {item.postText}
                   </p>
                 )}
-              </div>
 
-              {!item.read && (
-                <span className="w-2 h-2 rounded-full bg-indigo-500 mt-2 shrink-0" />
-              )}
+                <span className="text-[10px] text-[#71767b] font-mono mt-1 block">
+                  {formatRelativeTime(item.createdAt)}
+                </span>
+              </div>
             </div>
           ))
         )}

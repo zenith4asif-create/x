@@ -39,27 +39,30 @@ export const BookmarksPage: React.FC<BookmarksPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen">
-      <div className="sticky top-0 z-20 bg-slate-950/85 backdrop-blur-md border-b border-slate-800/80 px-4 py-3">
-        <h2 className="text-sm font-bold text-slate-100">Saved Bookmarks</h2>
-        <p className="text-[11px] text-slate-400">@{userProfile?.username || 'user'}</p>
+    <div className="min-h-screen bg-black text-[#e7e9ea] pb-16">
+      <div className="sticky top-0 z-20 bg-black/85 backdrop-blur-md border-b border-[#2f3336] px-4 py-3">
+        <h2 className="text-base font-black text-[#e7e9ea]">Bookmarks</h2>
+        <p className="text-xs text-[#71767b] font-mono">@{userProfile?.username || 'user'}</p>
       </div>
 
-      <div className="divide-y divide-slate-800/80">
+      <div className="divide-y divide-[#2f3336]">
         {loading ? (
-          <div className="py-24 flex justify-center items-center text-slate-500">
-            <Loader2 className="w-7 h-7 animate-spin text-indigo-500" />
+          <div className="py-24 flex justify-center items-center text-[#71767b]">
+            <Loader2 className="w-7 h-7 animate-spin text-[#1d9bf0]" />
           </div>
         ) : !currentUser ? (
-          <div className="py-20 text-center px-4">
-            <p className="text-xs text-slate-400">Sign in to view your saved bookmarks.</p>
+          <div className="py-24 text-center px-4">
+            <h3 className="text-base font-bold text-[#e7e9ea]">Save posts for later</h3>
+            <p className="text-xs text-[#71767b] mt-1 max-w-xs mx-auto">
+              Sign in to your real account to save posts and easily access them anytime.
+            </p>
           </div>
         ) : posts.length === 0 ? (
           <div className="py-24 text-center px-4">
-            <Bookmark className="w-8 h-8 text-indigo-400/60 mx-auto mb-3" />
-            <h3 className="text-sm font-bold text-slate-100">Save posts for later</h3>
-            <p className="text-xs text-slate-400 max-w-xs mx-auto mt-1">
-              Click the bookmark icon on any post to easily reference it here anytime.
+            <Bookmark className="w-10 h-10 text-[#71767b] mx-auto mb-3" />
+            <h3 className="text-lg font-bold text-[#e7e9ea]">Save posts for later</h3>
+            <p className="text-xs text-[#71767b] max-w-xs mx-auto mt-1">
+              Don’t let the good ones fly away! Bookmark posts to easily find them again in the future.
             </p>
           </div>
         ) : (

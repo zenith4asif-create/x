@@ -207,34 +207,38 @@ export const postService = {
   },
 
   /**
-   * Delete post
+   * Delete post (author can delete their own post)
    */
-  async deletePost(postId: string, currentUid: string, isAdmin = false): Promise<void> {
+  async deletePost(postId: string, currentUid: string, isAdmin: boolean = false): Promise<void> {
+    if (!postId || !currentUid) throw new Error('Not authorized to delete this post');
     const postSnap = await get(ref(rtdb, `posts/${postId}`));
     if (!postSnap.exists()) return;
     const post = postSnap.val() as Post;
 
     if (post.authorId !== currentUid && !isAdmin) {
-      throw new Error('Not authorized to delete this post');
+      throw new Error('You can only delete your own posts');
     }
 
-    const updates: Record<string, any> = {};
-    updates[`posts/${postId}/status`] = 'removed';
+    try {
+      await update(ref(rtdb, `posts/${postId}`), { status: 'removed' });
+    } catch {
+      await set(ref(rtdb, `posts/${postId}/status`), 'removed');
+    }
 
-    // Remove from hashtag indexes
-    if (post.hashtags) {
+    // Clean up auxiliary index paths
+    set(ref(rtdb, `user_posts/${post.authorId}/${postId}`), null).catch(() => {});
+    if (post.hashtags && Array.isArray(post.hashtags)) {
       for (const tag of post.hashtags) {
-        updates[`hashtags/${tag}/${postId}`] = null;
+        set(ref(rtdb, `hashtags/${tag}/${postId}`), null).catch(() => {});
       }
     }
 
-    // Decrement user postsCount
     const authorProfile = await userService.getUserProfile(post.authorId);
-    if (authorProfile && authorProfile.postsCount > 0) {
-      updates[`users/${post.authorId}/postsCount`] = authorProfile.postsCount - 1;
+    if (authorProfile && (authorProfile.postsCount || 0) > 0) {
+      update(ref(rtdb, `users/${post.authorId}`), {
+        postsCount: Math.max(0, authorProfile.postsCount - 1)
+      }).catch(() => {});
     }
-
-    await update(ref(rtdb), updates);
   },
 
   /**

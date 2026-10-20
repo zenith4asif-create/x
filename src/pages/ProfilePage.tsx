@@ -17,7 +17,8 @@ import {
   Repeat2,
   Play,
   Grid,
-  List
+  List,
+  LogOut
 } from 'lucide-react';
 import { VerifiedBadge } from '../components/brand/VerifiedBadge';
 import { formatCompactNumber } from '../utils/formatters';
@@ -47,11 +48,12 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
   onOpenMessageWithUser,
   onMediaClick
 }) => {
-  const { currentUser, userProfile: myProfile } = useAuth();
+  const { currentUser, userProfile: myProfile, signOut } = useAuth();
   const { showToast } = useToast();
 
   const isMe =
     Boolean(currentUser && myProfile && (
+      !username ||
       myProfile.username.toLowerCase() === username.toLowerCase() ||
       myProfile.uid === username ||
       currentUser.uid === username
@@ -74,11 +76,15 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
         let u: UserProfile | null = null;
         if (isMe && myProfile) {
           u = myProfile;
-        } else {
+        } else if (username) {
           u = await userService.getUserByUsername(username);
         }
 
         if (!u && isMe && myProfile) {
+          u = myProfile;
+        }
+
+        if (!u && currentUser && myProfile) {
           u = myProfile;
         }
 
@@ -228,8 +234,8 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
       {/* Profile Header & Info Details */}
       <div className="relative px-4 pb-4">
         {/* Avatar & Action Button Row (X Style: Avatar sits cleanly half over banner without clipping) */}
-        <div className="flex items-end justify-between -mt-14 sm:-mt-18 mb-3.5">
-          <div className="relative z-10 w-28 h-28 sm:w-36 sm:h-36 rounded-full border-4 border-black bg-black shadow-2xl overflow-hidden ring-1 ring-white/10 shrink-0">
+        <div className="flex items-end justify-between -mt-16 sm:-mt-20 mb-3.5">
+          <div className="relative z-10 w-32 h-32 sm:w-36 sm:h-36 rounded-full border-4 border-black bg-black shadow-2xl overflow-hidden ring-2 ring-black shrink-0">
             <img
               src={profile.avatarUrl || `https://api.dicebear.com/7.x/shapes/svg?seed=${profile.username}`}
               alt={profile.displayName}
@@ -240,12 +246,22 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
 
           <div className="flex items-center gap-2 pb-1">
             {isMe ? (
-              <button
-                onClick={onOpenEditProfile}
-                className="px-5 py-2 rounded-full border border-[#536471] bg-black hover:bg-white/10 text-white text-xs font-bold transition-all shadow-sm"
-              >
-                Edit profile
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={onOpenEditProfile}
+                  className="px-5 py-2 rounded-full border border-[#536471] bg-black hover:bg-white/10 text-white text-xs font-bold transition-all shadow-sm"
+                >
+                  Edit profile
+                </button>
+                <button
+                  onClick={() => signOut()}
+                  className="px-4 py-2 rounded-full border border-rose-500/40 hover:bg-rose-500/10 text-rose-400 hover:text-rose-300 text-xs font-bold transition-all flex items-center gap-1.5"
+                  title="Log out of account"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Log out</span>
+                </button>
+              </div>
             ) : (
               <>
                 <button
@@ -458,6 +474,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
               onUserClick={onUserClick}
               onHashtagClick={onHashtagClick}
               onMediaClick={onMediaClick}
+              onPostDeleted={(deletedId) => setPosts((prev) => prev.filter((item) => item.id !== deletedId))}
             />
           ))
         )}

@@ -1,11 +1,23 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Post } from '../types';
 import { feedService } from '../services/feedService';
+import { postService } from '../services/postService';
 import { useAuth } from '../context/AuthContext';
 import { Composer } from '../components/feed/Composer';
 import { PostCard } from '../components/feed/PostCard';
-import { RefreshCw, Sparkles, Users, Clock, Loader2, Code2, CheckCircle2 } from 'lucide-react';
+import {
+  RefreshCw,
+  Sparkles,
+  Users,
+  Clock,
+  Loader2,
+  Code2,
+  ArrowUp,
+  ChevronDown
+} from 'lucide-react';
 import { VerifiedBadge } from '../components/brand/VerifiedBadge';
+import { ref, onChildAdded } from 'firebase/database';
+import { rtdb } from '../firebase/config';
 
 interface HomePageProps {
   onPostClick: (postId: string) => void;
@@ -18,6 +30,8 @@ interface HomePageProps {
   onMediaClick: (media: any[], index: number) => void;
   onNavigateExplore?: () => void;
 }
+
+const POSTS_PER_CHUNK = 5;
 
 export const HomePage: React.FC<HomePageProps> = ({
   onPostClick,
@@ -34,9 +48,16 @@ export const HomePage: React.FC<HomePageProps> = ({
 
   const [feedMode, setFeedMode] = useState<'for_you' | 'following' | 'latest'>('for_you');
   const [followingSort, setFollowingSort] = useState<'chronological' | 'ranked'>('chronological');
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [allPosts, setAllPosts] = useState<Post[]>([]);
+  const [visibleCount, setVisibleCount] = useState<number>(POSTS_PER_CHUNK);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Auto-detect new content algorithm state
+  const [incomingPosts, setIncomingPosts] = useState<Post[]>([]);
+  const lastFeedLoadTimeRef = useRef<number>(Date.now());
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   const loadFeed = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
@@ -55,7 +76,10 @@ export const HomePage: React.FC<HomePageProps> = ({
       } else if (feedMode === 'latest') {
         result = await feedService.getLatestFeed(currentUser?.uid);
       }
-      setPosts(result);
+      setAllPosts(result);
+      setVisibleCount(POSTS_PER_CHUNK);
+      setIncomingPosts([]);
+      lastFeedLoadTimeRef.current = Date.now();
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -66,23 +90,105 @@ export const HomePage: React.FC<HomePageProps> = ({
     loadFeed();
   }, [loadFeed]);
 
+  // Real-time algorithm: Auto-detect new content published on the platform
+  useEffect(() => {
+    const postsRef = ref(rtdb, 'posts');
+    const unsubscribe = onChildAdded(postsRef, async (snapshot) => {
+      if (!snapshot.exists()) return;
+      const newPostVal = snapshot.val() as Post;
+      newPostVal.id = snapshot.key || newPostVal.id;
+
+      // Only detect posts created AFTER the current feed was loaded
+      if (
+        newPostVal.createdAt > lastFeedLoadTimeRef.current &&
+        newPostVal.status !== 'removed' &&
+        !newPostVal.replyTo
+      ) {
+        // Hydrate post for feed display
+        try {
+          const hydrated = await postService.hydratePost(newPostVal, currentUser?.uid);
+          setIncomingPosts((prev) => {
+            // Avoid duplicates
+            if (prev.some((p) => p.id === hydrated.id)) return prev;
+            return [hydrated, ...prev];
+          });
+        } catch {
+          // If hydration fails, queue basic post
+          setIncomingPosts((prev) => {
+            if (prev.some((p) => p.id === newPostVal.id)) return prev;
+            return [newPostVal, ...prev];
+          });
+        }
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [currentUser]);
+
+  // Click to view latest detected content (Iconic X feature)
+  const handleRevealNewPosts = () => {
+    if (incomingPosts.length === 0) return;
+    setAllPosts((prev) => [...incomingPosts, ...prev]);
+    setVisibleCount((prev) => prev + incomingPosts.length);
+    setIncomingPosts([]);
+    lastFeedLoadTimeRef.current = Date.now();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // 5-by-5 Progressive post pagination on scroll
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (first.isIntersecting && !loading && !loadingMore) {
+          if (visibleCount < allPosts.length) {
+            setLoadingMore(true);
+            setTimeout(() => {
+              setVisibleCount((prev) => Math.min(prev + POSTS_PER_CHUNK, allPosts.length));
+              setLoadingMore(false);
+            }, 250);
+          }
+        }
+      },
+      { rootMargin: '300px' }
+    );
+
+    observer.observe(sentinel);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [visibleCount, allPosts.length, loading, loadingMore]);
+
   const handlePostCreated = (newPost: Post) => {
-    setPosts((prev) => [newPost, ...prev]);
+    setAllPosts((prev) => [newPost, ...prev]);
+    setVisibleCount((prev) => prev + 1);
+    lastFeedLoadTimeRef.current = Date.now();
   };
 
   const handlePostDeleted = (postId: string) => {
-    setPosts((prev) => prev.filter((p) => p.id !== postId));
+    setAllPosts((prev) => prev.filter((p) => p.id !== postId));
   };
+
+  const visiblePosts = allPosts.slice(0, visibleCount);
+  const hasMore = visibleCount < allPosts.length;
 
   return (
     <div className="min-h-screen bg-black text-[#e7e9ea]">
       {/* Modern X Feed Tabs Sticky Header (Pure Black) */}
       <div className="sticky top-0 z-20 bg-black/85 backdrop-blur-md border-b border-[#2f3336]">
-        {/* Top Developer Attribution Banner (Compact & Sleek) */}
+        {/* Top Developer Attribution Banner */}
         <div className="px-4 py-1.5 bg-[#16181c]/70 border-b border-[#2f3336]/60 flex items-center justify-between text-[11px] text-[#71767b]">
           <div className="flex items-center gap-1.5">
             <Code2 className="w-3.5 h-3.5 text-[#1d9bf0]" />
-            <span>Architected & Built by <span className="font-bold text-[#e7e9ea]">ASIF ANSARI</span></span>
+            <span>
+              Architected & Built by <span className="font-bold text-[#e7e9ea]">ASIF ANSARI</span>
+            </span>
             <VerifiedBadge size={13} />
           </div>
           <span className="font-mono text-[10px] text-[#71767b] hidden sm:inline">v2.0 X-ENGINE</span>
@@ -169,19 +275,34 @@ export const HomePage: React.FC<HomePageProps> = ({
         )}
       </div>
 
+      {/* Floating Pill Banner for Auto-detected New Content (Iconic X feature) */}
+      {incomingPosts.length > 0 && (
+        <div className="sticky top-[98px] z-30 flex justify-center py-2 pointer-events-none animate-in slide-in-from-top-3 duration-200">
+          <button
+            onClick={handleRevealNewPosts}
+            className="pointer-events-auto px-5 py-2.5 rounded-full bg-[#1d9bf0] hover:bg-[#1a8cd8] active:scale-95 text-white font-extrabold text-xs shadow-xl shadow-[#1d9bf0]/30 flex items-center gap-2 transition-all border border-white/20"
+          >
+            <ArrowUp className="w-4 h-4 animate-bounce text-white" />
+            <span>
+              Show {incomingPosts.length} new post{incomingPosts.length > 1 ? 's' : ''}
+            </span>
+          </button>
+        </div>
+      )}
+
       {/* Desktop Inline Post Composer (Pure Black) */}
       <div className="hidden md:block">
         <Composer onPostCreated={handlePostCreated} />
       </div>
 
-      {/* Posts Stream */}
+      {/* Posts Stream (Fast chunk-wise 5-by-5 render) */}
       <div>
         {loading ? (
           <div className="py-24 flex flex-col justify-center items-center text-[#71767b]">
             <Loader2 className="w-8 h-8 animate-spin text-[#1d9bf0]" />
-            <span className="text-xs mt-3 font-mono">Loading your feed...</span>
+            <span className="text-xs mt-3 font-mono">Loading fast stream...</span>
           </div>
-        ) : posts.length === 0 ? (
+        ) : allPosts.length === 0 ? (
           <div className="py-24 text-center px-4">
             <h3 className="text-base font-bold text-[#e7e9ea]">
               {feedMode === 'following'
@@ -191,7 +312,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             <p className="text-xs text-[#71767b] mt-1 max-w-sm mx-auto">
               {feedMode === 'following'
                 ? 'Follow people to see what they are talking about, or browse the Explore tab.'
-                : 'Be the first to start a conversation or share media on ZOR.'}
+                : 'Be the first to publish a post with up to 1,000 words, high-res photos, or video.'}
             </p>
             {onNavigateExplore && feedMode === 'following' && (
               <button
@@ -203,21 +324,45 @@ export const HomePage: React.FC<HomePageProps> = ({
             )}
           </div>
         ) : (
-          posts.map((post) => (
-            <PostCard
-              key={post.id}
-              post={post}
-              onPostClick={onPostClick}
-              onUserClick={onUserClick}
-              onHashtagClick={onHashtagClick}
-              onReplyClick={onReplyClick}
-              onQuoteClick={onQuoteClick}
-              onAnalyticsClick={onAnalyticsClick}
-              onReportClick={onReportClick}
-              onMediaClick={onMediaClick}
-              onPostDeleted={handlePostDeleted}
-            />
-          ))
+          <>
+            {visiblePosts.map((post) => (
+              <PostCard
+                key={post.id}
+                post={post}
+                onPostClick={onPostClick}
+                onUserClick={onUserClick}
+                onHashtagClick={onHashtagClick}
+                onReplyClick={onReplyClick}
+                onQuoteClick={onQuoteClick}
+                onAnalyticsClick={onAnalyticsClick}
+                onReportClick={onReportClick}
+                onMediaClick={onMediaClick}
+                onPostDeleted={handlePostDeleted}
+              />
+            ))}
+
+            {/* Progressive 5-post Pagination Sentinel & Status */}
+            <div ref={sentinelRef} className="py-6 flex flex-col items-center justify-center">
+              {loadingMore ? (
+                <div className="flex items-center gap-2 text-xs text-[#71767b] font-mono">
+                  <Loader2 className="w-4 h-4 animate-spin text-[#1d9bf0]" />
+                  <span>Loading next 5 posts...</span>
+                </div>
+              ) : hasMore ? (
+                <button
+                  onClick={() => setVisibleCount((prev) => Math.min(prev + POSTS_PER_CHUNK, allPosts.length))}
+                  className="px-4 py-2 rounded-full border border-[#2f3336] hover:bg-white/5 text-[#71767b] hover:text-[#e7e9ea] text-xs font-semibold transition-all flex items-center gap-1.5"
+                >
+                  <ChevronDown className="w-4 h-4" />
+                  <span>Load 5 more posts</span>
+                </button>
+              ) : allPosts.length > 5 ? (
+                <div className="text-center text-xs text-[#71767b] py-4 font-mono">
+                  ✨ You're all caught up with the latest posts
+                </div>
+              ) : null}
+            </div>
+          </>
         )}
       </div>
     </div>

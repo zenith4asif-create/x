@@ -126,9 +126,16 @@ export const Composer: React.FC<ComposerProps> = ({
     showToast('Draft discarded', 'info');
   };
 
-  const MAX_CHARS = 280;
-  const remainingChars = MAX_CHARS - text.length;
-  const isOverLimit = remainingChars < 0;
+  const MAX_WORDS = 1000;
+  const countWords = (str: string) => {
+    const trimmed = str.trim();
+    if (!trimmed) return 0;
+    return trimmed.split(/\s+/).length;
+  };
+
+  const wordCount = countWords(text);
+  const remainingWords = MAX_WORDS - wordCount;
+  const isOverLimit = wordCount > MAX_WORDS;
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
@@ -277,12 +284,12 @@ export const Composer: React.FC<ComposerProps> = ({
 
   const handleSubmit = async () => {
     if (!currentUser) {
-      showToast('Please sign in to publish posts', 'info');
+      showToast('Please sign in or register to publish posts. Only real users can post.', 'info');
       return;
     }
 
     if (isOverLimit) {
-      showToast('Post exceeds maximum character limit', 'error');
+      showToast('Post exceeds maximum 1,000 words limit', 'error');
       return;
     }
 
@@ -504,8 +511,8 @@ export const Composer: React.FC<ComposerProps> = ({
 
           {/* Bottom Controls Bar */}
           <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between gap-2">
-            {/* Attachment Affordances */}
-            <div className="flex items-center gap-1 text-indigo-400">
+            {/* Attachment Affordances (Modern X Blue) */}
+            <div className="flex items-center gap-1 text-[#1d9bf0]">
               <input
                 ref={fileInputRef}
                 type="file"
@@ -518,7 +525,7 @@ export const Composer: React.FC<ComposerProps> = ({
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading || mediaList.length >= 4}
-                className="p-2 rounded-full hover:bg-indigo-500/10 transition-colors disabled:opacity-40"
+                className="p-2 rounded-full hover:bg-[#1d9bf0]/10 transition-colors disabled:opacity-40"
                 title="Add Photos / Video via Cloudinary"
               >
                 <Image className="w-4 h-4" />
@@ -527,8 +534,8 @@ export const Composer: React.FC<ComposerProps> = ({
               <button
                 type="button"
                 onClick={() => setShowPoll(!showPoll)}
-                className={`p-2 rounded-full hover:bg-indigo-500/10 transition-colors ${
-                  showPoll ? 'bg-indigo-500/20 text-indigo-300' : ''
+                className={`p-2 rounded-full hover:bg-[#1d9bf0]/10 transition-colors ${
+                  showPoll ? 'bg-[#1d9bf0]/20 text-[#1d9bf0]' : ''
                 }`}
                 title="Create Poll"
               >
@@ -549,19 +556,19 @@ export const Composer: React.FC<ComposerProps> = ({
               <button
                 type="button"
                 onClick={openDrafts}
-                className="p-2 rounded-full hover:bg-indigo-500/10 transition-colors text-slate-400 hover:text-indigo-400"
+                className="p-2 rounded-full hover:bg-white/10 transition-colors text-[#71767b] hover:text-[#e7e9ea]"
                 title="Saved Drafts"
               >
                 <FileText className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Right: Character count & Post Button */}
+            {/* Right: Word count & Post Button (X Style) */}
             <div className="flex items-center gap-3">
-              {text.length > 0 && (
+              {wordCount > 0 && (
                 <div className="flex items-center gap-1.5 text-xs font-mono tabular-nums">
-                  <span className={isOverLimit ? 'text-rose-500 font-bold' : remainingChars <= 20 ? 'text-amber-400' : 'text-slate-400'}>
-                    {remainingChars}
+                  <span className={isOverLimit ? 'text-rose-500 font-bold' : remainingWords <= 50 ? 'text-amber-400' : 'text-[#71767b]'}>
+                    {wordCount} / 1000 words
                   </span>
                 </div>
               )}
@@ -570,7 +577,7 @@ export const Composer: React.FC<ComposerProps> = ({
                 <button
                   type="button"
                   onClick={handleSaveDraft}
-                  className="hidden sm:inline-block text-xs text-slate-400 hover:text-slate-200 transition-colors"
+                  className="hidden sm:inline-block text-xs text-[#71767b] hover:text-[#e7e9ea] transition-colors"
                 >
                   Save draft
                 </button>
@@ -580,7 +587,7 @@ export const Composer: React.FC<ComposerProps> = ({
                 type="button"
                 onClick={handleSubmit}
                 disabled={isSubmitting || uploading || isOverLimit || (!text.trim() && mediaList.length === 0 && !showPoll)}
-                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 disabled:opacity-50 disabled:pointer-events-none text-white text-xs font-semibold shadow-md shadow-indigo-600/20 transition-all flex items-center gap-1.5"
+                className="px-5 py-2 rounded-full bg-white hover:bg-neutral-200 active:scale-95 disabled:opacity-40 disabled:pointer-events-none text-black text-xs font-extrabold shadow-sm transition-all flex items-center gap-1.5"
               >
                 {isSubmitting ? (
                   <>
@@ -598,36 +605,42 @@ export const Composer: React.FC<ComposerProps> = ({
 
       {/* Drafts Modal */}
       {showDraftsList && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="max-w-md w-full rounded-2xl bg-slate-900 border border-slate-800 p-5 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
+          <div className="max-w-md w-full rounded-3xl bg-black border border-[#2f3336] p-5 shadow-2xl animate-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-slate-100 text-sm">Saved Drafts</h3>
-              <button onClick={() => setShowDraftsList(false)} className="text-slate-400 hover:text-slate-200">
+              <h3 className="font-extrabold text-[#e7e9ea] text-sm">Saved Drafts</h3>
+              <button
+                onClick={() => setShowDraftsList(false)}
+                className="p-1 rounded-full text-[#71767b] hover:text-[#e7e9ea] hover:bg-white/10 transition-colors"
+              >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {loadingDrafts ? (
-              <div className="py-8 text-center text-xs text-slate-400">Loading drafts...</div>
+              <div className="py-8 text-center text-xs text-[#71767b] flex items-center justify-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin text-[#1d9bf0]" />
+                <span>Loading drafts...</span>
+              </div>
             ) : drafts.length === 0 ? (
-              <div className="py-8 text-center text-xs text-slate-400">No saved drafts yet.</div>
+              <div className="py-8 text-center text-xs text-[#71767b]">No saved drafts yet.</div>
             ) : (
-              <div className="max-h-72 overflow-y-auto space-y-2">
+              <div className="max-h-72 overflow-y-auto space-y-2 pr-1">
                 {drafts.map((d) => (
                   <div
                     key={d.id}
                     onClick={() => applyDraft(d)}
-                    className="p-3 rounded-xl border border-slate-800 bg-slate-950/60 hover:border-indigo-500/50 cursor-pointer flex items-center justify-between text-xs transition-colors"
+                    className="p-3 rounded-2xl border border-[#2f3336] bg-[#16181c] hover:border-[#1d9bf0]/50 hover:bg-white/[0.03] cursor-pointer flex items-center justify-between text-xs transition-colors"
                   >
                     <div className="min-w-0 flex-1 pr-3">
-                      <p className="text-slate-200 truncate font-medium">{d.text || '[Media Draft]'}</p>
-                      <span className="text-slate-400 text-[10px]">
+                      <p className="text-[#e7e9ea] truncate font-medium">{d.text || '[Media Attachment]'}</p>
+                      <span className="text-[#71767b] text-[10px]">
                         {new Date(d.updatedAt).toLocaleDateString()}
                       </span>
                     </div>
                     <button
                       onClick={(e) => deleteDraftItem(e, d.id)}
-                      className="text-slate-400 hover:text-rose-400 p-1.5"
+                      className="text-[#71767b] hover:text-rose-400 p-1.5 rounded-full hover:bg-rose-500/10 transition-colors"
                       title="Delete draft"
                     >
                       <Trash2 className="w-3.5 h-3.5" />

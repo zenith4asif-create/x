@@ -71,25 +71,34 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-black text-[#e7e9ea]">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-slate-950/85 backdrop-blur-md border-b border-slate-800/80 px-4 py-3 flex items-center gap-4">
+      <div className="sticky top-0 z-20 bg-black/85 backdrop-blur-md border-b border-[#2f3336] px-4 py-3 flex items-center gap-6">
         <button
           onClick={onBack}
-          className="p-1.5 -ml-1.5 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+          className="p-1.5 -ml-1.5 rounded-full text-[#e7e9ea] hover:bg-white/10 transition-colors"
+          title="Back"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h2 className="text-sm font-bold text-slate-100">Thread Discussion</h2>
+        <h2 className="text-base font-extrabold text-[#e7e9ea]">Post</h2>
       </div>
 
       {loading ? (
-        <div className="py-24 flex justify-center items-center text-slate-500">
-          <Loader2 className="w-7 h-7 animate-spin text-indigo-500" />
+        <div className="py-24 flex flex-col justify-center items-center text-[#71767b]">
+          <Loader2 className="w-8 h-8 animate-spin text-[#1d9bf0]" />
+          <span className="text-xs mt-3 font-mono">Loading post...</span>
         </div>
       ) : !post ? (
-        <div className="py-24 text-center text-xs text-slate-500">
-          This post could not be found or has been removed.
+        <div className="py-24 text-center px-4">
+          <h3 className="text-base font-bold text-[#e7e9ea]">Post unavailable</h3>
+          <p className="text-xs text-[#71767b] mt-1">This post has been deleted by its author.</p>
+          <button
+            onClick={onBack}
+            className="mt-4 px-5 py-2 rounded-full bg-white text-black font-bold text-xs hover:bg-neutral-200 transition-colors"
+          >
+            Go back
+          </button>
         </div>
       ) : (
         <div>
@@ -102,9 +111,10 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
                 onUserClick={onUserClick}
                 onHashtagClick={onHashtagClick}
                 onMediaClick={onMediaClick}
+                onPostDeleted={() => setParentPost(null)}
               />
               {/* Visual Thread Connecting Line */}
-              <div className="absolute left-9 bottom-0 top-14 w-0.5 bg-slate-800 pointer-events-none" />
+              <div className="absolute left-9 bottom-0 top-14 w-0.5 bg-[#2f3336] pointer-events-none" />
             </div>
           )}
 
@@ -115,21 +125,22 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
             onUserClick={onUserClick}
             onHashtagClick={onHashtagClick}
             onMediaClick={onMediaClick}
+            onPostDeleted={() => onBack()}
           />
 
           {/* Reply Composer Bar */}
-          <div className="border-y border-slate-800/80 bg-slate-950/40">
+          <div className="border-y border-[#2f3336] bg-black">
             <Composer
               replyTo={post}
-              placeholder="Post your reply to this thread..."
+              placeholder="Post your reply"
               onPostCreated={handleReplyCreated}
             />
           </div>
 
           {/* Replies Stream */}
-          <div className="divide-y divide-slate-800/80">
+          <div className="divide-y divide-[#2f3336]">
             {replies.length === 0 ? (
-              <div className="py-12 text-center text-xs text-slate-500">
+              <div className="py-16 text-center text-xs text-[#71767b]">
                 No replies yet. Be the first to start the conversation!
               </div>
             ) : (
@@ -141,6 +152,7 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
                   onUserClick={onUserClick}
                   onHashtagClick={onHashtagClick}
                   onMediaClick={onMediaClick}
+                  onPostDeleted={(rId) => setReplies((prev) => prev.filter((r) => r.id !== rId))}
                 />
               ))
             )}

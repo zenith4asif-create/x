@@ -1,35 +1,33 @@
-import { ref, get } from 'firebase/database';
+import { ref, get, set } from 'firebase/database';
 import { rtdb } from '../firebase/config';
-import { postService } from './postService';
 
 export const seedService = {
   /**
-   * If database has 0 posts, seeds initial welcome posts introducing ZOR
+   * Only real users can post. Removes legacy demo accounts and posts.
    */
   async seedIfEmpty(): Promise<void> {
     try {
       const snap = await get(ref(rtdb, 'posts'));
-      if (snap.exists() && Object.keys(snap.val()).length > 0) {
-        return; // Already populated
-      }
+      if (!snap.exists()) return;
 
-      // Seed initial posts
-      await postService.createPost({
-        authorId: 'system_zor',
-        text: 'Welcome to ZOR — the next-generation decentralized social network. Built with real-time sync, Cloudinary media optimization, and algorithmic discovery. What are your thoughts on modern social architectures? #ZORPlatform #Tech #WebDev',
-        poll: {
-          question: 'What matters most to you in a social platform?',
-          options: ['Fast Real-Time Feeds', 'Clean Anti-Slop Design', 'Algorithmic Personalization', 'Private Direct Messaging'],
-          durationHours: 72
+      // Clean up legacy demo posts from 'system_zor'
+      const updates: Record<string, any> = {};
+      let hasDemo = false;
+      snap.forEach((child) => {
+        const val = child.val();
+        if (val && (val.authorId === 'system_zor' || val.authorId === 'demo')) {
+          updates[`posts/${child.key}`] = null;
+          hasDemo = true;
         }
       });
 
-      await postService.createPost({
-        authorId: 'system_zor',
-        text: 'Zero-slop interface design, instant media CDN delivery via Cloudinary, and high-performance real-time interactions. Experience the speed of ZOR. #DesignSystems #Architecture'
-      });
-    } catch (err) {
-      console.warn('Seed skipped:', err);
+      if (hasDemo) {
+        for (const [path, val] of Object.entries(updates)) {
+          await set(ref(rtdb, path), val).catch(() => {});
+        }
+      }
+    } catch {
+      // Ignore
     }
   }
 };

@@ -1,7 +1,7 @@
 import React from 'react';
 import { ZorLogo } from '../brand/ZorLogo';
 import { useAuth } from '../../context/AuthContext';
-import { ArrowLeft, Search, LogIn } from 'lucide-react';
+import { ArrowLeft, Search, LogIn, LogOut } from 'lucide-react';
 
 interface MobileHeaderProps {
   title?: string;
@@ -18,7 +18,7 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
   onSearchClick,
   onAuthClick
 }) => {
-  const { currentUser } = useAuth();
+  const { currentUser, signOut } = useAuth();
 
   return (
     <header className="md:hidden sticky top-0 z-30 h-14 bg-black/85 backdrop-blur-md border-b border-[#2f3336] px-4 flex items-center justify-between select-none">
@@ -58,6 +58,17 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
           >
             <LogIn className="w-3.5 h-3.5" />
             <span>Sign In</span>
+          </button>
+        )}
+
+        {currentUser && (
+          <button
+            onClick={() => signOut()}
+            className="ml-1 p-2 rounded-full text-[#71767b] hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+            title="Log out"
+            aria-label="Log out"
+          >
+            <LogOut className="w-4 h-4" />
           </button>
         )}
       </div>

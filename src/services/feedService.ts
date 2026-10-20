@@ -20,8 +20,8 @@ export const feedService = {
       snap.forEach((child) => {
         const p = child.val() as Post;
         p.id = child.key || p.id;
-        // Feed only shows root posts, not direct replies
-        if (p.status === 'active' && !p.replyTo) {
+        // Feed only shows root posts from real users, not demo accounts or replies
+        if (p.status !== 'removed' && !p.replyTo && p.authorId !== 'system_zor' && p.authorId !== 'demo') {
           rawPosts.push(p);
         }
       });
@@ -134,7 +134,13 @@ export const feedService = {
       snap.forEach((child) => {
         const p = child.val() as Post;
         p.id = child.key || p.id;
-        if (p.status === 'active' && !p.replyTo && !blockedIds.has(p.authorId)) {
+        if (
+          p.status !== 'removed' &&
+          !p.replyTo &&
+          !blockedIds.has(p.authorId) &&
+          p.authorId !== 'system_zor' &&
+          p.authorId !== 'demo'
+        ) {
           rawPosts.push(p);
         }
       });

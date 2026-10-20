@@ -323,7 +323,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                   e.stopPropagation();
                   setMenuOpen(!menuOpen);
                 }}
-                className="p-1 rounded-full text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+                className="p-1.5 rounded-full text-[#71767b] hover:text-[#1d9bf0] hover:bg-[#1d9bf0]/10 transition-colors"
                 title="More options"
               >
                 <MoreHorizontal className="w-4 h-4" />
@@ -338,17 +338,17 @@ export const PostCard: React.FC<PostCardProps> = ({
                       setMenuOpen(false);
                     }}
                   />
-                  <div className="absolute right-0 top-full mt-1 w-48 rounded-xl bg-slate-900 border border-slate-800 shadow-xl py-1 z-40 text-xs">
+                  <div className="absolute right-0 top-full mt-1.5 w-52 rounded-2xl bg-black border border-[#2f3336] shadow-2xl py-1.5 z-40 text-xs animate-in zoom-in-95 duration-150">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         setMenuOpen(false);
                         handleShare(e);
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-slate-300 hover:bg-slate-800 transition-colors"
+                      className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-[#e7e9ea] hover:bg-white/10 transition-colors font-medium text-left"
                     >
-                      <LinkIcon className="w-4 h-4 text-slate-400" />
-                      <span>Copy link</span>
+                      <LinkIcon className="w-4 h-4 text-[#71767b]" />
+                      <span>Copy link to post</span>
                     </button>
 
                     {isAuthor && onAnalyticsClick && (
@@ -358,9 +358,9 @@ export const PostCard: React.FC<PostCardProps> = ({
                           setMenuOpen(false);
                           onAnalyticsClick(post);
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-slate-300 hover:bg-slate-800 transition-colors"
+                        className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-[#e7e9ea] hover:bg-white/10 transition-colors font-medium text-left"
                       >
-                        <BarChart3 className="w-4 h-4 text-slate-400" />
+                        <BarChart3 className="w-4 h-4 text-[#71767b]" />
                         <span>View post analytics</span>
                       </button>
                     )}
@@ -372,9 +372,9 @@ export const PostCard: React.FC<PostCardProps> = ({
                           setMenuOpen(false);
                           onQuoteClick(post);
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-slate-300 hover:bg-slate-800 transition-colors"
+                        className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-[#e7e9ea] hover:bg-white/10 transition-colors font-medium text-left"
                       >
-                        <Repeat2 className="w-4 h-4 text-slate-400" />
+                        <Repeat2 className="w-4 h-4 text-[#71767b]" />
                         <span>Quote post</span>
                       </button>
                     )}
@@ -386,7 +386,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                           setMenuOpen(false);
                           onReportClick(post);
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-amber-400 hover:bg-slate-800 transition-colors"
+                        className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-amber-400 hover:bg-amber-500/10 transition-colors font-medium text-left"
                       >
                         <Flag className="w-4 h-4" />
                         <span>Report post</span>
@@ -399,9 +399,9 @@ export const PostCard: React.FC<PostCardProps> = ({
                           e.stopPropagation();
                           handleDelete();
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-rose-400 hover:bg-slate-800 transition-colors border-t border-slate-800 mt-1"
+                        className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-[#f4212e] hover:bg-rose-500/10 transition-colors border-t border-[#2f3336] mt-1 font-bold text-left"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4 text-[#f4212e]" />
                         <span>Delete post</span>
                       </button>
                     )}
